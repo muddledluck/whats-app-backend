@@ -3,7 +3,7 @@ import ConversationModel from "../../models/conversations/conversation.model.js"
 import MessageModel from "../../models/messages/message.model.js";
 
 // Utility fies
-import base64ToFileUrl from "../../utils/base64Tofile.utils.js";
+import base64ToFileUrl from "../../utils/base64ToFile.utils.js";
 
 // Validate the input
 import validateCreateConversationInput from "../../validator/chat/createConversationInput.validator.js";
