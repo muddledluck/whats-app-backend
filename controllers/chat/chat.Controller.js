@@ -64,11 +64,16 @@ export const createMessage = async (req, res) => {
     if (!isValid) {
       return res.status(400).json(errors);
     }
+    const conv = await ConversationModel.findOne({
+      _id: req.body.conversationId,
+    });
 
     const newMessage = new MessageModel({
       conversationId: req.body.conversationId,
       author: req.user._id,
       content: req.body.content,
+      isSent: true,
+      participants: conv.participants,
     });
     if (req.body.file) {
       const fileUrl = await base64ToFileUrl(
@@ -81,7 +86,8 @@ export const createMessage = async (req, res) => {
         type: req.body.file.type,
       };
     }
-    const savedMessage = await newMessage.save();
+    let savedMessage = await newMessage.save();
+    savedMessage = await savedMessage.populate("author").execPopulate();
     res.status(200).json({ savedMessage });
   } catch (error) {
     console.log("createMessage: ", error);

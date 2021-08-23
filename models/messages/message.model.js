@@ -44,6 +44,11 @@ const MessageSchema = mongoose.Schema(
       ref: "User",
       default: [],
     },
+    participants: {
+      type: [mongoose.Types.ObjectId],
+      ref: "User",
+      required: true,
+    },
   },
   { timestamps: true }
 );
