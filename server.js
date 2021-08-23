@@ -13,7 +13,7 @@ import ChatRoute from "./route/chat.js";
 import { Server } from "socket.io";
 import { socketManager } from "./socketManager/socketManager.js";
 
-dotenv.config("./.env")
+dotenv.config("./.env");
 
 const app = express();
 app.use(cors());
@@ -60,7 +60,7 @@ const server = http.createServer(app);
 
 export const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000", "https://sad-davinci-7b9234.netlify.app"],
     methods: ["GET", "POST"],
     credentials: true,
   },
