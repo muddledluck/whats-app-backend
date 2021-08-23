@@ -8,17 +8,21 @@ export const socketManager = (io) => (socket) => {
       { new: true }
     );
     if (user) {
-      io.emit("marked_user_online", user);
+      io.emit(`user_update_${user._id}`, user);
     }
   });
   // when disconnect
   socket.on("disconnect", async () => {
-    await User.findOneAndUpdate(
+    const disconnectedUser = await User.findOneAndUpdate(
       { socketId: socket.id },
       {
         $set: { socketId: null },
-      }
+      },
+      { new: true }
     );
+    if (disconnectedUser) {
+      io.emit(`user_update_${disconnectedUser._id}`, disconnectedUser);
+    }
     console.log("disconnect");
   });
 };

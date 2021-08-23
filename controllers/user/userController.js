@@ -102,3 +102,33 @@ export const getUserDetails = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+export const searchUserProfile = async (req, res) => {
+  const keyword = req.params.keyword;
+  try {
+    const userList = await User.find({
+      $expr: {
+        $or: [
+          {
+            $regexMatch: {
+              input: "$name",
+              regex: keyword,
+              options: "im",
+            },
+          },
+          {
+            $regexMatch: {
+              input: "$username",
+              regex: keyword,
+              options: "im",
+            },
+          },
+        ],
+      },
+    }).limit(10);
+    return res.status(200).json({ userList });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ errors: error });
+  }
+};

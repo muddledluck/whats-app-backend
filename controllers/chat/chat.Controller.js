@@ -18,11 +18,20 @@ export const createConversation = async (req, res) => {
     return res.status(400).json(errors);
   }
   try {
+    const existingConversation = await ConversationModel.findOne({
+      participants: { $all: [...req.body.participants, req.user._id] },
+    });
+    if (existingConversation) {
+      return res.status(200).json({ savedConversation: existingConversation });
+    }
     const newConversation = new ConversationModel({
       participants: [...req.body.participants, req.user._id],
     });
-    const savedConversation = await newConversation.save();
-    return res.status(200).json(savedConversation);
+    let savedConversation = await newConversation.save();
+    savedConversation = await savedConversation
+      .populate("participants")
+      .execPopulate();
+    return res.status(200).json({ savedConversation });
   } catch (error) {
     console.log("coversaoitn: ", error);
     return res.status(500).json({ message: "Internal Server error" });
@@ -34,12 +43,12 @@ export const createConversation = async (req, res) => {
  */
 export const getAllConversationByUser = async (req, res) => {
   try {
-    const conversation = await ConversationModel.find({
+    const conversations = await ConversationModel.find({
       participants: { $in: [req.user._id] },
     })
       .populate("participants")
       .sort({ updateAt: -1 });
-    return res.status(200).json(conversation);
+    return res.status(200).json({ conversations });
   } catch (error) {
     console.log("getAllConversationOfUser: ", error);
     return res.status(500).json({ message: "Internal Server error" });
@@ -73,7 +82,7 @@ export const createMessage = async (req, res) => {
       };
     }
     const savedMessage = await newMessage.save();
-    res.status(200).json(savedMessage);
+    res.status(200).json({ savedMessage });
   } catch (error) {
     console.log("createMessage: ", error);
     return res.status(500).json({ message: "Internal Server error" });
@@ -85,10 +94,10 @@ export const createMessage = async (req, res) => {
  */
 export const getAllMessageByConversationId = async (req, res) => {
   try {
-    const message = await MessageModel.find({
+    const messages = await MessageModel.find({
       conversationId: req.params.conversationId,
     }).populate("author");
-    return res.status(200).json(message);
+    return res.status(200).json({ messages });
   } catch (error) {
     console.log("getAllMessageByConversationId: ", error);
     return res.status(500).json({ message: "Internal Server error" });
